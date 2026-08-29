@@ -1,0 +1,33 @@
+{
+  "original_archive": "/home/ubuntu/smart_plant_work/original/Smart_Plant_System_original.zip",
+  "original_archive_sha256": "0c49d33ae3c434b72a0ab2fc9e724d9b9fe8badb6782d8ce0ceb83c1b6ce6f02",
+  "files_before": {
+    "electron/main.cjs": "3d86cdea2ce08631edec1457cb0616b012fb6e54f0929038585befae119df9e8",
+    "electron/protocol.cjs": "c21baecfcc185202844b6220009150a8070f5ef8dc1abef802851784c229069d",
+    "modified/source/Smart_Plant_System/Arduino/arduino_soil_sensor.ino": "d09a971e770df2932b73de04a12efdb43c97598dac755415c904998aa349fe8a",
+    "dist/public/assets/index-wesf2TWk.js": "594326c570e91621c915b2a1c21011cc227ab8aa418a8e098e06a92746bb9ac8",
+    "modified/source/Smart_Plant_System/Docs/instant-reading-guide.md": "882a05dcdf8d4d644c08d14a5eafcf6c787aa167317a085b97b6a0aae6355ca9"
+  },
+  "changes": [
+    "إرسال PUMP_ON/PUMP_OFF إلى Arduino عند تغير حالة المضخة أو إعادة الاتصال.",
+    "إضافة مزامنة عند اتصال Arduino وwatchdog دوري، مع إيقاف آمن عند إغلاق التطبيق.",
+    "إضافة PUMP_ACK وتغذية حالة المضخة الفيزيائية إلى مسار الحالة.",
+    "إضافة ريليه D7 وwatchdog 15 ثانية إلى كود Arduino.",
+    "إزالة تسميات Telemetry وأسماء المصدر الداخلية من الواجهة التشغيلية العامة فقط؛ أبقيت الفحوصات الداخلية اللازمة في شاشة الاختبار.",
+    "الحفاظ على النسخة الأصلية كما هي دون تعديل."
+  ],
+  "verification": {
+    "javascript_syntax": "node --check passed for main.cjs, protocol.cjs, and active UI bundle",
+    "asar_repacked": true,
+    "native_serialport_files_preserved": 10,
+    "physical_hardware_test": "not possible in sandbox; follow INSTALL_AR.md"
+  },
+  "files_after": {
+    "electron/main.cjs": "4ebe9b93608ab09a85f5b6f4d3367abce9851792021b65e1fc43ab5d90b8e7ee",
+    "electron/protocol.cjs": "c21baecfcc185202844b6220009150a8070f5ef8dc1abef802851784c229069d",
+    "modified/source/Smart_Plant_System/Arduino/arduino_soil_sensor.ino": "d168eb8201f91b05f8ce617e1c6b1271d2ff6e0e7e58e7acc7e343bb13e1db9a",
+    "dist/public/assets/index-wesf2TWk.js": "a37b714ea3875231f051421638afa066759926602ed54c7918f6f1ae8eab098e",
+    "modified/source/Smart_Plant_System/Docs/instant-reading-guide.md": "2a8c0b08d5a2f560007799b869c4af17c60eff60c12a49b1433c81fb0bacd489"
+  },
+  "modified_file_count": 5
+}

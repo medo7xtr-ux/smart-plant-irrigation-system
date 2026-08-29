@@ -1,0 +1,2 @@
+385638f0c2dc98c504827519ab714ba68dd079fa06c2ec4051360e8466d0d5fc  /home/ubuntu/smart_plant_work/modified/Smart_Plant_System_modified.zip
+0c49d33ae3c434b72a0ab2fc9e724d9b9fe8badb6782d8ce0ceb83c1b6ce6f02  /home/ubuntu/smart_plant_work/original/Smart_Plant_System_original.zip

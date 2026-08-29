@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Electron build outputs
+app/dist/win-unpacked/
+app/dist/builder-*.yml
+app/dist/builder-*.yaml
+app/dist/*.blockmap
+
+# Runtime data and local user state
+*.log
+*.tmp
+قرائت الحساسات.json
+تحكم_المضخة.json
+حالة_الطقس.json
+سجل_الأحداث.json
+
+# Editors and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Release binaries are uploaded as GitHub Release assets, not Git blobs
+release/*.zip
+
+# Local working folders
+sandbox/
+work/
