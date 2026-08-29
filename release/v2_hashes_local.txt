@@ -1,0 +1,4 @@
+0fc65be0d297440d3d1c80616e56e00353b641a145ef806167d13f34b0c9955b  /home/ubuntu/smart_plant_v2_work/Smart_Plant_System_v2.0.0.zip
+9b50266ebcade331c4e117f403220757bf2813ffc3d9a7bd6665f94e17396323  /home/ubuntu/smart_plant_v2_work/portable_build/resources/app.asar
+e5a6e0154b1415a38ed0581a84094a7ba1b37fad8b36f59fde67ba17932f60a5  /home/ubuntu/smart_plant_v2_work/repo/app/dist/public/assets/index-wesf2TWk.js
+bba5eb8300b031e983d5de0db7cbc2447978dc395780c7e5f3b2e12001a82a1f  /home/ubuntu/smart_plant_v2_work/repo/hardware/arduino_soil_sensor.ino

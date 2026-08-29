@@ -1,0 +1,6 @@
+4ebe9b93608ab09a85f5b6f4d3367abce9851792021b65e1fc43ab5d90b8e7ee  /home/ubuntu/smart_plant_v2_work/repo/app/electron/main.cjs
+c21baecfcc185202844b6220009150a8070f5ef8dc1abef802851784c229069d  /home/ubuntu/smart_plant_v2_work/repo/app/electron/protocol.cjs
+e5a6e0154b1415a38ed0581a84094a7ba1b37fad8b36f59fde67ba17932f60a5  /home/ubuntu/smart_plant_v2_work/repo/app/dist/public/assets/index-wesf2TWk.js
+bba5eb8300b031e983d5de0db7cbc2447978dc395780c7e5f3b2e12001a82a1f  /home/ubuntu/smart_plant_v2_work/repo/hardware/arduino_soil_sensor.ino
+28bec0cbd6137617bad49c61878bfc256f93b4d3d8cd4feaf7382fd64089680a  /home/ubuntu/smart_plant_v2_work/repo/docs/CHANGELOG_V2_AR.md
+77d1a8c3542deb3ac284bf58c7760adf7ed5127e61d0e097f8db289c6d9e325a  /home/ubuntu/smart_plant_v2_work/repo/docs/VERIFICATION_V2_AR.md

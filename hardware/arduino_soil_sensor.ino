@@ -11,7 +11,7 @@
 const byte SENSOR_PIN = A0;
 const byte PUMP_PIN = 7;
 const bool PUMP_ACTIVE_HIGH = true;
-const unsigned long SAMPLE_INTERVAL_MS = 60000UL;
+const unsigned long SAMPLE_INTERVAL_MS = 1000UL;
 const unsigned long PUMP_WATCHDOG_MS = 15000UL;
 const char* DEVICE_ID = "arduino-uno-soil-01";
 const char* ZONE_ID = "zone2";
