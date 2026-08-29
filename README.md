@@ -20,7 +20,7 @@
 
 ## التشغيل
 
-للتشغيل على Windows، حمّل `release/Smart_Plant_System_modified.zip` من قسم Releases، فك الضغط كاملًا، ثم شغّل `Smart Plant Smart Irrigation.exe`. يجب إبقاء مجلد `resources` بجانب ملف التشغيل.
+للتشغيل على Windows، حمّل حزمة [Smart_Plant_System_modified.zip من الإصدار الرسمي](https://github.com/medo7xtr-ux/smart-plant-irrigation-system/releases/tag/v1.0.0)، فك الضغط كاملًا، ثم شغّل `Smart Plant Smart Irrigation.exe`. يجب إبقاء مجلد `resources` بجانب ملف التشغيل.
 
 لضبط منفذ Arduino يدويًا، استخدم متغير البيئة `SMART_PLANT_COM_PORT`. الاتصال التسلسلي مضبوط على `115200 baud`.
 
