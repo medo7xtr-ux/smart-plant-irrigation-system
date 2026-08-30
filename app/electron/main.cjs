@@ -48,6 +48,8 @@ let physicalPumpState = 'UNKNOWN';
 let lastPumpAckTime = 0;
 let pumpError = null;
 let pumpWatchdogTimer = null;
+const invalidAuditThrottle = new Map();
+const INVALID_AUDIT_COOLDOWN_MS = 10000;
 
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
 if (!hasSingleInstanceLock) {
@@ -308,13 +310,20 @@ async function applyAutomaticDecision(record, forceAudit = false) {
 async function save(payload, expectedSource) {
   const validation = validateReading(payload, expectedSource);
   if (!validation.ok) {
-    await appendAudit({
-      source: expectedSource || payload.source || 'UNKNOWN',
-      type: 'INVALID_READING_REJECTED',
-      title: 'تم رفض قراءة غير صالحة',
-      reason: validation.reason,
-      reading: payload
-    });
+    const invalidSource = expectedSource || payload.source || 'UNKNOWN';
+    const invalidKey = `${invalidSource}:${validation.reason}`;
+    const now = Date.now();
+    const lastAudit = invalidAuditThrottle.get(invalidKey) || 0;
+    if (now - lastAudit >= INVALID_AUDIT_COOLDOWN_MS) {
+      invalidAuditThrottle.set(invalidKey, now);
+      await appendAudit({
+        source: invalidSource,
+        type: 'INVALID_READING_REJECTED',
+        title: 'تم رفض قراءة غير صالحة',
+        reason: validation.reason,
+        reading: payload
+      });
+    }
     const error = new Error(validation.reason);
     error.code = validation.reason;
     throw error;
