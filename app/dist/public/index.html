@@ -73,7 +73,7 @@ Error generating stack: `+l.message+`
     <div id="root"></div>
     <script defer src="%VITE_ANALYTICS_ENDPOINT%/umami" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
   <style>
-    #dht-air-panel{display:block;position:fixed;z-index:9999;top:76px;left:24px;width:min(360px,calc(100vw - 48px));padding:18px;border:1px solid #d9e5d5;border-radius:16px;background:#fbfcf7;color:#18342b;box-shadow:0 14px 35px rgba(24,52,43,.18);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+    #dht-air-panel{display:block;position:relative;width:min(920px,calc(100% - 48px));margin:18px auto;padding:18px;border:1px solid #d9e5d5;border-radius:16px;background:#fbfcf7;color:#18342b;box-shadow:0 8px 24px rgba(24,52,43,.10);font-family:system-ui,-apple-system,Segoe UI,sans-serif;box-sizing:border-box}
     #dht-air-panel.is-hidden{display:none}
     #dht-air-panel .dht-title{font-weight:800;font-size:18px;margin-bottom:4px}
     #dht-air-panel .dht-subtitle{font-size:12px;color:#6f8277;margin-bottom:14px}
@@ -106,7 +106,8 @@ Error generating stack: `+l.message+`
       const airAlert=document.getElementById('dht-air-alert');
       const status=document.getElementById('dht-air-status');
       function isLive(){const u=location.pathname+location.hash; const heading=[...document.querySelectorAll('h1,h2')].some(el=>/Arduino\s*\/\s*Live/i.test(el.textContent||'')); return u.includes('/arduino/live')||u.includes('arduino/live')||heading}
-      function renderVisibility(){panel.classList.toggle('is-hidden',!isLive())}
+      function mountPanel(){const main=document.querySelector('main'); if(!main) return; const header=main.querySelector(':scope > header'); if(panel.parentElement!==main){main.insertBefore(panel,header?header.nextElementSibling:main.firstChild)}}
+      function renderVisibility(){mountPanel(); panel.classList.toggle('is-hidden',!isLive())}
       async function refresh(){
         renderVisibility(); if(!isLive()) return;
         try{
