@@ -363,6 +363,8 @@ async function save(payload, expectedSource) {
 function markToolOnline() {
   const wasOffline = !toolOnline;
   toolOnline = true;
+  // DEVICE_TOOL owns telemetry while the simulator is alive.
+  if (serialPort?.isOpen || serialPort?.opening) closeSerial();
   lastToolHeartbeatTime = Date.now();
   if (wasOffline) {
     void appendAudit({ source: 'DEVICE_TOOL', type: 'TOOL_RECONNECTED', title: 'تمت إعادة اتصال أداة Telemetry', reason: 'وصلت heartbeat أو قراءة جديدة من DEVICE_TOOL' });
@@ -373,6 +375,8 @@ async function markToolOffline() {
   if (!toolOnline) return;
   toolOnline = false;
   await appendAudit({ source: 'DEVICE_TOOL', type: 'TOOL_DISCONNECTED', title: 'فقد اتصال أداة Telemetry', reason: 'لم تصل heartbeat أو قراءة جديدة خلال المهلة المحددة' });
+  // Return ownership to Arduino immediately after simulator timeout.
+  if (!serialPort?.isOpen && !serialPort?.opening) void connectArduino();
 }
 
 function closeSerial() {
@@ -406,6 +410,8 @@ async function connectArduino() {
     const next = new SerialPort({ path: candidate, baudRate: 115200, autoOpen: true });
     const parser = next.pipe(new ReadlineParser({ delimiter: '\n' }));
     parser.on('data', (line) => {
+      // Ignore Arduino telemetry while the simulation tool owns the channel.
+      if (toolOnline) return;
       const normalized = String(line).trim();
       if (normalized.startsWith('PUMP_ACK:')) {
         const acknowledged = normalized.slice('PUMP_ACK:'.length);
@@ -577,6 +583,7 @@ function createServer(publicRoot) {
       }
       if (requestUrl.pathname === '/api/tool/inject' && request.method === 'POST') {
         const payload = JSON.parse(await readRequestBody(request));
+        markToolOnline();
         payload.source = 'DEVICE_TOOL';
         const record = await save(payload, 'DEVICE_TOOL');
         return sendJson(response, 200, { success: true, status: 'continuous_active', record, telemetry: telemetryStatus() });
@@ -716,7 +723,7 @@ if (hasSingleInstanceLock) {
       mainWindow.once('ready-to-show', () => mainWindow.show());
       void connectArduino();
       serialReconnectTimer = setInterval(() => {
-        if (!serialPort || !serialPort.isOpen) void connectArduino();
+        if (!toolOnline && (!serialPort || !serialPort.isOpen)) void connectArduino();
       }, 5000);
       toolHeartbeatTimer = setInterval(() => {
         if (toolOnline && Date.now() - Math.max(lastToolHeartbeatTime, lastToolReadingTime) > TOOL_TIMEOUT_MS) void markToolOffline();
