@@ -111,8 +111,11 @@ Error generating stack: `+l.message+`
         renderVisibility(); if(!isLive()) return;
         try{
           const r=await fetch('/api/arduino/readings?t='+Date.now(),{cache:'no-store'}); if(!r.ok) throw Error('readings');
-          const data=await r.json(); const rec=(Array.isArray(data.records)?data.records:[]).slice(-1)[0];
-          const t=Number(rec&&rec.airTemperature), h=Number(rec&&rec.airHumidity);
+          const data=await r.json();
+          const records=Array.isArray(data.records)?data.records:(Array.isArray(data.readings)?data.readings:[]);
+          const rec=records.length?records[records.length-1]:(data.latest||null);
+          const t=Number(rec&&(rec.airTemperature ?? rec.temperature ?? rec.temp));
+          const h=Number(rec&&(rec.airHumidity ?? rec.humidity ?? rec.hum));
           temperature.textContent=Number.isFinite(t)?t.toFixed(1)+' °C':'— °C';
           humidity.textContent=Number.isFinite(h)?h.toFixed(1)+' %':'— %';
           let stop='60%'; let mode='الجو متوسط الرطوبة؛ حد الإيقاف الافتراضي 60%';
@@ -124,8 +127,8 @@ Error generating stack: `+l.message+`
           const humidStop=Number.isFinite(h)&&h>=70&&Number.isFinite(Number(rec&&rec.value))&&Number(rec.value)>=65&&control&&control.state==='OFF';
           alert.textContent=humidStop?'إشعار الري: تم إيقاف الري عند 65% لأن رطوبة الجو مرتفعة ('+h.toFixed(1)+'%).':'');
           alert.classList.toggle('is-active',humidStop);
-          status.textContent=rec?'آخر قراءة: '+new Date(rec.ts).toLocaleTimeString('ar-SA'):'في انتظار قراءة Arduino…';
-        }catch(e){status.textContent='لا توجد قراءة DHT11 حالياً';}
+          status.textContent=rec?'آخر قراءة: '+new Date(rec.ts||Date.now()).toLocaleTimeString('ar-SA'):'في انتظار قراءة Arduino…';
+        }catch(e){status.textContent='تعذر قراءة بيانات DHT11 حالياً؛ تأكد من اتصال Arduino وإرسال airTemperature وairHumidity';}
       }
       window.addEventListener('popstate',renderVisibility); window.addEventListener('hashchange',renderVisibility);
       refresh(); setInterval(refresh,1000);
