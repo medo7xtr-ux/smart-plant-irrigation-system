@@ -1,6 +1,6 @@
 {
   "name": "smart-plant-desktop",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Smart Plant Smart Irrigation live soil monitor",
   "main": "electron/main.cjs",
   "author": "Smart Plant",
