@@ -73,8 +73,8 @@ Error generating stack: `+l.message+`
     <div id="root"></div>
     <script defer src="%VITE_ANALYTICS_ENDPOINT%/umami" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
   <style>
-    #dht-air-panel{display:none;position:fixed;z-index:9999;top:76px;left:24px;width:min(360px,calc(100vw - 48px));padding:18px;border:1px solid #d9e5d5;border-radius:16px;background:#fbfcf7;color:#18342b;box-shadow:0 14px 35px rgba(24,52,43,.18);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
-    #dht-air-panel.is-visible{display:block}
+    #dht-air-panel{display:block;position:fixed;z-index:9999;top:76px;left:24px;width:min(360px,calc(100vw - 48px));padding:18px;border:1px solid #d9e5d5;border-radius:16px;background:#fbfcf7;color:#18342b;box-shadow:0 14px 35px rgba(24,52,43,.18);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+    #dht-air-panel.is-hidden{display:none}
     #dht-air-panel .dht-title{font-weight:800;font-size:18px;margin-bottom:4px}
     #dht-air-panel .dht-subtitle{font-size:12px;color:#6f8277;margin-bottom:14px}
     #dht-air-panel .dht-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -103,12 +103,12 @@ Error generating stack: `+l.message+`
       const temperature=document.getElementById('dht-air-temperature');
       const humidity=document.getElementById('dht-air-humidity');
       const policy=document.getElementById('dht-air-policy');
-      const alert=document.getElementById('dht-air-alert');
+      const airAlert=document.getElementById('dht-air-alert');
       const status=document.getElementById('dht-air-status');
       function isLive(){const u=location.pathname+location.hash;return u.includes('/arduino/live')||u.includes('arduino/live')}
-      function renderVisibility(){panel.classList.toggle('is-visible',isLive())}
+      function renderVisibility(){panel.classList.remove('is-hidden')}
       async function refresh(){
-        renderVisibility(); if(!isLive()) return;
+        renderVisibility();
         try{
           const r=await fetch('/api/arduino/readings?t='+Date.now(),{cache:'no-store'}); if(!r.ok) throw Error('readings');
           const data=await r.json();
@@ -125,8 +125,8 @@ Error generating stack: `+l.message+`
           const controlResponse=await fetch('/api/control/status?t='+Date.now(),{cache:'no-store'});
           const control=controlResponse.ok?await controlResponse.json():null;
           const humidStop=Number.isFinite(h)&&h>=70&&Number.isFinite(Number(rec&&rec.value))&&Number(rec.value)>=65&&control&&control.state==='OFF';
-          alert.textContent=humidStop?'إشعار الري: تم إيقاف الري عند 65% لأن رطوبة الجو مرتفعة ('+h.toFixed(1)+'%).':'');
-          alert.classList.toggle('is-active',humidStop);
+          airAlert.textContent=humidStop?'إشعار الري: تم إيقاف الري عند 65% لأن رطوبة الجو مرتفعة ('+h.toFixed(1)+'%).':'';
+          airAlert.classList.toggle('is-active',humidStop);
           status.textContent=rec?'آخر قراءة: '+new Date(rec.ts||Date.now()).toLocaleTimeString('ar-SA'):'في انتظار قراءة Arduino…';
         }catch(e){status.textContent='تعذر قراءة بيانات DHT11 حالياً؛ تأكد من اتصال Arduino وإرسال airTemperature وairHumidity';}
       }
