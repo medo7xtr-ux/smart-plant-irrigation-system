@@ -72,5 +72,55 @@ Error generating stack: `+l.message+`
 
     <div id="root"></div>
     <script defer src="%VITE_ANALYTICS_ENDPOINT%/umami" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+  <style>
+    #dht-air-panel{display:none;position:fixed;z-index:9999;top:76px;left:24px;width:min(360px,calc(100vw - 48px));padding:18px;border:1px solid #d9e5d5;border-radius:16px;background:#fbfcf7;color:#18342b;box-shadow:0 14px 35px rgba(24,52,43,.18);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+    #dht-air-panel.is-visible{display:block}
+    #dht-air-panel .dht-title{font-weight:800;font-size:18px;margin-bottom:4px}
+    #dht-air-panel .dht-subtitle{font-size:12px;color:#6f8277;margin-bottom:14px}
+    #dht-air-panel .dht-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    #dht-air-panel .dht-value{padding:12px;border-radius:12px;background:#e7f1e4}
+    #dht-air-panel .dht-label{display:block;font-size:12px;color:#4f8967;margin-bottom:4px}
+    #dht-air-panel .dht-number{font-size:25px;font-weight:800}
+    #dht-air-panel .dht-policy{margin-top:12px;padding-top:10px;border-top:1px solid #d9e5d5;font-size:12px;color:#52665a;line-height:1.7}
+    #dht-air-panel .dht-status{margin-top:8px;font-size:11px;color:#819187}
+  </style>
+  <aside id="dht-air-panel" dir="rtl" aria-live="polite">
+    <div class="dht-title">حساس حرارة ورطوبة الجو</div>
+    <div class="dht-subtitle">DHT11 · تحديث تلقائي كل ثانية</div>
+    <div class="dht-grid">
+      <div class="dht-value"><span class="dht-label">حرارة الجو</span><span id="dht-air-temperature" class="dht-number">— °C</span></div>
+      <div class="dht-value"><span class="dht-label">رطوبة الجو</span><span id="dht-air-humidity" class="dht-number">— %</span></div>
+    </div>
+    <div id="dht-air-policy" class="dht-policy">حد الإيقاف: —</div>
+    <div id="dht-air-status" class="dht-status">في انتظار قراءة Arduino…</div>
+  </aside>
+  <script>
+    (function(){
+      const panel=document.getElementById('dht-air-panel');
+      const temperature=document.getElementById('dht-air-temperature');
+      const humidity=document.getElementById('dht-air-humidity');
+      const policy=document.getElementById('dht-air-policy');
+      const status=document.getElementById('dht-air-status');
+      function isLive(){const u=location.pathname+location.hash;return u.includes('/arduino/live')||u.includes('arduino/live')}
+      function renderVisibility(){panel.classList.toggle('is-visible',isLive())}
+      async function refresh(){
+        renderVisibility(); if(!isLive()) return;
+        try{
+          const r=await fetch('/api/arduino/readings?t='+Date.now(),{cache:'no-store'}); if(!r.ok) throw Error('readings');
+          const data=await r.json(); const rec=(Array.isArray(data.records)?data.records:[]).slice(-1)[0];
+          const t=Number(rec&&rec.airTemperature), h=Number(rec&&rec.airHumidity);
+          temperature.textContent=Number.isFinite(t)?t.toFixed(1)+' °C':'— °C';
+          humidity.textContent=Number.isFinite(h)?h.toFixed(1)+' %':'— %';
+          let stop='60%'; let mode='الجو متوسط الرطوبة؛ حد الإيقاف الافتراضي 60%';
+          if(Number.isFinite(h)&&h>=70){stop='65%';mode='رطوبة جو عالية (≥70%)؛ يتوقف الري عند رطوبة تربة 65%';}
+          else if(Number.isFinite(h)&&h<=40){stop='90%';mode='جفاف جو مرتفع (≤40%)؛ يستمر الري حتى رطوبة تربة 90%';}
+          policy.textContent='حد الإيقاف: '+stop+' · '+mode;
+          status.textContent=rec?'آخر قراءة: '+new Date(rec.ts).toLocaleTimeString('ar-SA'):'في انتظار قراءة Arduino…';
+        }catch(e){status.textContent='لا توجد قراءة DHT11 حالياً';}
+      }
+      window.addEventListener('popstate',renderVisibility); window.addEventListener('hashchange',renderVisibility);
+      refresh(); setInterval(refresh,1000);
+    })();
+  </script>
   </body>
 </html>

@@ -1,13 +1,21 @@
 /*
-  Smart Plant - Arduino Uno Soil Moisture Sensor + Pump Relay
+  Smart Plant - Arduino Uno Soil Moisture Sensor + DHT11 + Pump Relay
   Serial: 115200
-  Sensor AO -> A0
+  Soil sensor AO -> A0
+  DHT11 DATA/S -> D2
   Pump relay -> D7
+
+  Install libraries: DHT sensor library by Adafruit and Adafruit Unified Sensor.
 
   ارفع هذا الملف إلى Arduino IDE ثم اختر Arduino Uno والمنفذ الصحيح.
 */
 
+#include <DHT.h>
+
 const byte SENSOR_PIN = A0;
+const byte DHT_PIN = 2;
+const byte DHT_TYPE = DHT11;
+DHT dht(DHT_PIN, DHT_TYPE);
 const byte PUMP_PIN = 7;
 
 // غيّرها إلى false إذا كان الريليه Active-Low.
@@ -79,6 +87,9 @@ int rawToPercent(int raw) {
 void publishReading() {
   int raw = readRawAverage();
   int moisture = rawToPercent(raw);
+  float airHumidity = dht.readHumidity();
+  float airTemperature = dht.readTemperature();
+  bool airValid = !isnan(airHumidity) && !isnan(airTemperature);
 
   // أرسل القيمة المئوية في value، والقراءة الخام في raw.
   Serial.print("{\"ts_ms\":");
@@ -91,8 +102,17 @@ void publishReading() {
   Serial.print(moisture);
   Serial.print(",\"raw\":");
   Serial.print(raw);
-  Serial.print(",\"unit\":\"percent\",\"calibration\":\"uno-field-calibrated\"}");
-  Serial.println();
+  Serial.print(",\"unit\":\"percent\",\"calibration\":\"uno-field-calibrated\"");
+  if (airValid) {
+    Serial.print(",\"airTemperature\":");
+    Serial.print(airTemperature, 1);
+    Serial.print(",\"airHumidity\":");
+    Serial.print(airHumidity, 1);
+    Serial.print(",\"airUnit\":\"C/%\"");
+  } else {
+    Serial.print(",\"airTemperature\":null,\"airHumidity\":null,\"airUnit\":\"C/%\"");
+  }
+  Serial.println("}");
 }
 
 void setup() {
@@ -100,6 +120,7 @@ void setup() {
 
   pinMode(SENSOR_PIN, INPUT);
   pinMode(PUMP_PIN, OUTPUT);
+  dht.begin();
 
   // يبدأ النظام والمضخة متوقفة.
   setPumpOutput(false, false);

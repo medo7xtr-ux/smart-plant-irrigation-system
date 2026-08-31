@@ -14,6 +14,7 @@ const {
   validateReading,
   readingBand,
   weatherAllowsIrrigation,
+  soilStopThreshold,
   telemetryConnectionState
 } = require('./protocol.cjs');
 
@@ -278,15 +279,16 @@ async function applyAutomaticDecision(record, forceAudit = false) {
     return;
   }
 
-  if (record.value >= STOP_THRESHOLD) {
-    const nextKey = `stop:${record.source}:${band}`;
+  const stopThreshold = soilStopThreshold(record);
+  if (record.value >= stopThreshold) {
+    const nextKey = `stop:${record.source}:${band}:${stopThreshold}`;
     if (control.state !== 'OFF') {
-      await updateControl({ state: 'OFF', lastCommand: 'AUTO', commandSource: 'SYSTEM', reason: 'MOISTURE_RECOVERED' });
+      await updateControl({ state: 'OFF', lastCommand: 'AUTO', commandSource: 'SYSTEM', reason: stopThreshold === 65 ? 'MOISTURE_RECOVERED_HUMID_AIR' : stopThreshold === 90 ? 'MOISTURE_RECOVERED_DRY_AIR' : 'MOISTURE_RECOVERED' });
       await appendAudit({
         source: record.source,
         type: 'IRRIGATION_STOPPED',
         title: 'تم إيقاف المضخة بعد تحسن الرطوبة',
-        reason: `الرطوبة ارتفعت إلى ${record.value}% وتجاوزت حد الإيقاف ${STOP_THRESHOLD}%`,
+        reason: `الرطوبة ارتفعت إلى ${record.value}% وتجاوزت حد الإيقاف ${stopThreshold}% (رطوبة الجو: ${Number.isFinite(Number(record.airHumidity)) ? `${record.airHumidity}%` : 'غير متاحة'})`,
         reading: record,
         pumpState: 'OFF',
         controlMode: 'AUTO'
@@ -338,6 +340,9 @@ async function save(payload, expectedSource) {
     raw: Number.isFinite(Number(payload.raw)) ? Number(payload.raw) : Math.round(value * 10.23),
     deviceId: payload.deviceId || (source === 'DEVICE_TOOL' ? 'spoof-tool-01' : 'arduino-uno-soil-01'),
     calibration: payload.calibration || (source === 'DEVICE_TOOL' ? 'tool-gui-v2' : 'uno-field-calibrated'),
+    airTemperature: Number.isFinite(Number(payload.airTemperature)) ? Number(Number(payload.airTemperature).toFixed(1)) : null,
+    airHumidity: Number.isFinite(Number(payload.airHumidity)) ? Number(Number(payload.airHumidity).toFixed(1)) : null,
+    airUnit: payload.airUnit || 'C/%',
     source
   };
   data.records = Array.isArray(data.records) ? [...data.records, record].slice(-1000) : [record];
