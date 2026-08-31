@@ -105,7 +105,7 @@ Error generating stack: `+l.message+`
       const policy=document.getElementById('dht-air-policy');
       const airAlert=document.getElementById('dht-air-alert');
       const status=document.getElementById('dht-air-status');
-      function isLive(){const u=location.pathname+location.hash;return u.includes('/arduino/live')||u.includes('arduino/live')}
+      function isLive(){const u=location.pathname+location.hash; const heading=[...document.querySelectorAll('h1,h2')].some(el=>/Arduino\s*\/\s*Live/i.test(el.textContent||'')); return u.includes('/arduino/live')||u.includes('arduino/live')||heading}
       function renderVisibility(){panel.classList.toggle('is-hidden',!isLive())}
       async function refresh(){
         renderVisibility(); if(!isLive()) return;
@@ -131,7 +131,8 @@ Error generating stack: `+l.message+`
         }catch(e){status.textContent='تعذر قراءة بيانات DHT11 حالياً؛ تأكد من اتصال Arduino وإرسال airTemperature وairHumidity';}
       }
       window.addEventListener('popstate',renderVisibility); window.addEventListener('hashchange',renderVisibility);
-      refresh(); setInterval(refresh,1000);
+      new MutationObserver(renderVisibility).observe(document.getElementById('root')||document.body,{subtree:true,childList:true,characterData:true});
+      renderVisibility(); refresh(); setInterval(refresh,1000);
     })();
   </script>
   </body>
