@@ -106,9 +106,9 @@ Error generating stack: `+l.message+`
       const airAlert=document.getElementById('dht-air-alert');
       const status=document.getElementById('dht-air-status');
       function isLive(){const u=location.pathname+location.hash;return u.includes('/arduino/live')||u.includes('arduino/live')}
-      function renderVisibility(){panel.classList.remove('is-hidden')}
+      function renderVisibility(){panel.classList.toggle('is-hidden',!isLive())}
       async function refresh(){
-        renderVisibility();
+        renderVisibility(); if(!isLive()) return;
         try{
           const r=await fetch('/api/arduino/readings?t='+Date.now(),{cache:'no-store'}); if(!r.ok) throw Error('readings');
           const data=await r.json();
