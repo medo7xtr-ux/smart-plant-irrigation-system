@@ -83,6 +83,8 @@ Error generating stack: `+l.message+`
     #dht-air-panel .dht-number{font-size:25px;font-weight:800}
     #dht-air-panel .dht-policy{margin-top:12px;padding-top:10px;border-top:1px solid #d9e5d5;font-size:12px;color:#52665a;line-height:1.7}
     #dht-air-panel .dht-status{margin-top:8px;font-size:11px;color:#819187}
+    #dht-air-panel .dht-alert{display:none;margin-top:12px;padding:10px;border-radius:10px;background:#fff2d9;color:#8a5b16;font-size:12px;font-weight:700;line-height:1.6}
+    #dht-air-panel .dht-alert.is-active{display:block}
   </style>
   <aside id="dht-air-panel" dir="rtl" aria-live="polite">
     <div class="dht-title">حساس حرارة ورطوبة الجو</div>
@@ -92,6 +94,7 @@ Error generating stack: `+l.message+`
       <div class="dht-value"><span class="dht-label">رطوبة الجو</span><span id="dht-air-humidity" class="dht-number">— %</span></div>
     </div>
     <div id="dht-air-policy" class="dht-policy">حد الإيقاف: —</div>
+    <div id="dht-air-alert" class="dht-alert" role="alert"></div>
     <div id="dht-air-status" class="dht-status">في انتظار قراءة Arduino…</div>
   </aside>
   <script>
@@ -100,6 +103,7 @@ Error generating stack: `+l.message+`
       const temperature=document.getElementById('dht-air-temperature');
       const humidity=document.getElementById('dht-air-humidity');
       const policy=document.getElementById('dht-air-policy');
+      const alert=document.getElementById('dht-air-alert');
       const status=document.getElementById('dht-air-status');
       function isLive(){const u=location.pathname+location.hash;return u.includes('/arduino/live')||u.includes('arduino/live')}
       function renderVisibility(){panel.classList.toggle('is-visible',isLive())}
@@ -115,6 +119,11 @@ Error generating stack: `+l.message+`
           if(Number.isFinite(h)&&h>=70){stop='65%';mode='رطوبة جو عالية (≥70%)؛ يتوقف الري عند رطوبة تربة 65%';}
           else if(Number.isFinite(h)&&h<=40){stop='90%';mode='جفاف جو مرتفع (≤40%)؛ يستمر الري حتى رطوبة تربة 90%';}
           policy.textContent='حد الإيقاف: '+stop+' · '+mode;
+          const controlResponse=await fetch('/api/control/status?t='+Date.now(),{cache:'no-store'});
+          const control=controlResponse.ok?await controlResponse.json():null;
+          const humidStop=Number.isFinite(h)&&h>=70&&Number.isFinite(Number(rec&&rec.value))&&Number(rec.value)>=65&&control&&control.state==='OFF';
+          alert.textContent=humidStop?'إشعار الري: تم إيقاف الري عند 65% لأن رطوبة الجو مرتفعة ('+h.toFixed(1)+'%).':'');
+          alert.classList.toggle('is-active',humidStop);
           status.textContent=rec?'آخر قراءة: '+new Date(rec.ts).toLocaleTimeString('ar-SA'):'في انتظار قراءة Arduino…';
         }catch(e){status.textContent='لا توجد قراءة DHT11 حالياً';}
       }

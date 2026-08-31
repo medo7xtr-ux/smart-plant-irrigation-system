@@ -287,8 +287,8 @@ async function applyAutomaticDecision(record, forceAudit = false) {
       await appendAudit({
         source: record.source,
         type: 'IRRIGATION_STOPPED',
-        title: 'تم إيقاف المضخة بعد تحسن الرطوبة',
-        reason: `الرطوبة ارتفعت إلى ${record.value}% وتجاوزت حد الإيقاف ${stopThreshold}% (رطوبة الجو: ${Number.isFinite(Number(record.airHumidity)) ? `${record.airHumidity}%` : 'غير متاحة'})`,
+        title: stopThreshold === 65 ? 'تم إيقاف الري عند 65% بسبب ارتفاع رطوبة الجو' : stopThreshold === 90 ? 'استمر الري حتى 90% بسبب جفاف الجو' : 'تم إيقاف المضخة بعد تحسن الرطوبة',
+        reason: stopThreshold === 65 ? `إشعار: أُوقِف الري لأن رطوبة التربة بلغت ${record.value}% مع رطوبة جو مرتفعة ${record.airHumidity}% (الحد 65%).` : `الرطوبة ارتفعت إلى ${record.value}% وتجاوزت حد الإيقاف ${stopThreshold}% (رطوبة الجو: ${Number.isFinite(Number(record.airHumidity)) ? `${record.airHumidity}%` : 'غير متاحة'})`,
         reading: record,
         pumpState: 'OFF',
         controlMode: 'AUTO'
